@@ -1,0 +1,63 @@
+definitions:
+  model.Users:
+    properties:
+      age:
+        type: integer
+      email:
+        description: Unique column
+        type: string
+      id:
+        description: Primary key
+        type: string
+      name:
+        type: string
+    type: object
+  user.CreateUserRequest:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/users:
+    get:
+      description: Get all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Users'
+            type: array
+      summary: Get all users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: Users Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Users'
+      summary: Create user
+      tags:
+      - users
+swagger: "2.0"
