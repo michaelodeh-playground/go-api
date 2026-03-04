@@ -69,6 +69,47 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/users/{user}": {
+            "put": {
+                "description": "Update a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Users Data",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/user.UpdateUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Users"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -77,6 +118,9 @@ const docTemplate = `{
             "properties": {
                 "age": {
                     "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
                 },
                 "email": {
                     "description": "Unique column",
@@ -88,20 +132,44 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
         "user.CreateUserRequest": {
             "type": "object",
             "properties": {
-                "age": {
-                    "type": "integer"
-                },
                 "email": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "john@example.com",
+                    "example": "john@example.com"
                 },
                 "name": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "John Doe",
+                    "example": "John Doe"
+                }
+            }
+        },
+        "user.UpdateUserRequest": {
+            "type": "object",
+            "properties": {
+                "age": {
+                    "type": "integer",
+                    "default": 30,
+                    "example": 30
+                },
+                "email": {
+                    "type": "string",
+                    "default": "updated@example.com",
+                    "example": "updated@example.com"
+                },
+                "name": {
+                    "type": "string",
+                    "default": "John Updated",
+                    "example": "John Updated"
                 }
             }
         }

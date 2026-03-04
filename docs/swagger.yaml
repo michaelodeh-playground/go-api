@@ -3,6 +3,8 @@ definitions:
     properties:
       age:
         type: integer
+      created_at:
+        type: string
       email:
         description: Unique column
         type: string
@@ -11,14 +13,33 @@ definitions:
         type: string
       name:
         type: string
+      updated_at:
+        type: string
     type: object
   user.CreateUserRequest:
     properties:
-      age:
-        type: integer
       email:
+        default: john@example.com
+        example: john@example.com
         type: string
       name:
+        default: John Doe
+        example: John Doe
+        type: string
+    type: object
+  user.UpdateUserRequest:
+    properties:
+      age:
+        default: 30
+        example: 30
+        type: integer
+      email:
+        default: updated@example.com
+        example: updated@example.com
+        type: string
+      name:
+        default: John Updated
+        example: John Updated
         type: string
     type: object
 info:
@@ -58,6 +79,33 @@ paths:
           schema:
             $ref: '#/definitions/model.Users'
       summary: Create user
+      tags:
+      - users
+  /api/users/{user}:
+    put:
+      consumes:
+      - application/json
+      description: Update a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Users Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Users'
+      summary: Update user
       tags:
       - users
 swagger: "2.0"

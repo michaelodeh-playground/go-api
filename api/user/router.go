@@ -10,4 +10,5 @@ func init() {
 
 	UserRoute.Post("/", CreateUser)
 	UserRoute.Get("/", IndexUser)
+	UserRoute.Put("/{user}", UpdateUser)
 }
