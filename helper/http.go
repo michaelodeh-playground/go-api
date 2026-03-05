@@ -16,26 +16,28 @@ const (
 	StatusInternalServerError Status = "internal_server_error"
 )
 
-type ApiResponse struct {
+type ApiResponse[T any] struct {
 	Code    int    `json:"code"`
 	Status  Status `json:"status"`
 	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"`
+	Data    T      `json:"data,omitempty"`
 }
 
-type ApiSuccessResponse struct {
-	Message string `json:"message"`
-	Data    any    `json:"data"`
+type ApiSuccessResponse[T any] struct {
+	Code    int    `json:"code" example:"200"`
+	Status  Status `json:"status" example:"success"`
+	Message string `json:"message" example:"Record fetched successfully"`
+	Data    T      `json:"data"`
 }
 
-func JsonResponse(w http.ResponseWriter, response *ApiResponse) {
+func JsonResponse[T any](w http.ResponseWriter, response *ApiResponse[T]) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.Code)
 	json.NewEncoder(w).Encode(response)
 }
 
-func JsonErrorResponse(w http.ResponseWriter, response *ApiResponse) {
-	JsonResponse(w, &ApiResponse{
+func JsonErrorResponse[T any](w http.ResponseWriter, response *ApiResponse[T]) {
+	JsonResponse(w, &ApiResponse[string]{
 		Code:    response.Code,
 		Status:  StatusError,
 		Message: response.Message,
@@ -43,7 +45,7 @@ func JsonErrorResponse(w http.ResponseWriter, response *ApiResponse) {
 }
 
 func JsonNotFoundResponse(w http.ResponseWriter, message string) {
-	JsonResponse(w, &ApiResponse{
+	JsonResponse(w, &ApiResponse[string]{
 		Code:    http.StatusNotFound,
 		Status:  StatusNotFound,
 		Message: message,
@@ -51,7 +53,7 @@ func JsonNotFoundResponse(w http.ResponseWriter, message string) {
 }
 
 func JsonBadRequestResponse(w http.ResponseWriter, message string) {
-	JsonResponse(w, &ApiResponse{
+	JsonResponse(w, &ApiResponse[string]{
 		Code:    http.StatusBadRequest,
 		Status:  StatusBadRequest,
 		Message: message,
@@ -59,15 +61,15 @@ func JsonBadRequestResponse(w http.ResponseWriter, message string) {
 }
 
 func JsonInternalServerErrorResponse(w http.ResponseWriter, message string) {
-	JsonResponse(w, &ApiResponse{
+	JsonResponse(w, &ApiResponse[string]{
 		Code:    http.StatusInternalServerError,
 		Status:  StatusInternalServerError,
 		Message: message,
 	})
 }
 
-func JsonSuccessResponse(w http.ResponseWriter, response *ApiSuccessResponse) {
-	JsonResponse(w, &ApiResponse{
+func JsonSuccessResponse[T any](w http.ResponseWriter, response *ApiSuccessResponse[T]) {
+	JsonResponse(w, &ApiResponse[T]{
 		Code:    http.StatusOK,
 		Status:  StatusSuccess,
 		Message: response.Message,

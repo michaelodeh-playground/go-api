@@ -16,7 +16,7 @@ import (
 // @Description Get all users
 // @Tags users
 // @Produce json
-// @Success 200 {object} []model.Users
+// @Success 200 {object} helper.ApiSuccessResponse[[]model.Users]
 // @Router /api/users [get]
 func Index(w http.ResponseWriter, r *http.Request) {
 	var users []model.Users
@@ -26,7 +26,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse[[]model.Users]{
 		Message: "User fetched successfully",
 		Data:    users,
 	})
@@ -37,7 +37,7 @@ func Index(w http.ResponseWriter, r *http.Request) {
 // @Tags users
 // @Produce json
 // @Param user path string true "User ID"
-// @Success 200 {object} model.Users
+// @Success 200 {object} helper.ApiSuccessResponse[model.Users]
 // @Router /api/users/{user} [get]
 func Show(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "user")
@@ -50,7 +50,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
 		return
 	}
-	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse[model.Users]{
 		Message: "User fetched successfully",
 		Data:    user,
 	})
@@ -62,7 +62,7 @@ func Show(w http.ResponseWriter, r *http.Request) {
 // @Accept json
 // @Produce json
 // @Param user body CreateUserRequest true "Users Data"
-// @Success 200 {object} model.Users
+// @Success 200 {object} helper.ApiSuccessResponse[model.Users]
 // @Router /api/users [post]
 func Create(w http.ResponseWriter, r *http.Request) {
 	var body CreateUserRequest
@@ -97,7 +97,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse[model.Users]{
 		Message: "User created successfully",
 		Data:    user,
 	})
@@ -110,7 +110,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 // @Produce json
 // @Param user path string true "User ID"
 // @Param user body UpdateUserRequest true "Users Data"
-// @Success 200 {object} model.Users
+// @Success 200 {object} helper.ApiSuccessResponse[model.Users]
 // @Router /api/users/{user} [put]
 func Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "user")
@@ -133,7 +133,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
 		return
 	}
-	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse[model.Users]{
 		Message: "User updated successfully",
 		Data:    user,
 	})
@@ -145,7 +145,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 // @Tags users
 // @Produce json
 // @Param user path string true "User ID"
-// @Success 200 {object} model.Users
+// @Success 200 {object} helper.ApiSuccessResponse[model.Users]
 // @Router /api/users/{user} [delete]
 func Delete(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "user")
@@ -164,13 +164,13 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if result.RowsAffected == 0 {
-		helper.JsonErrorResponse(w, &helper.ApiResponse{
+		helper.JsonErrorResponse(w, &helper.ApiResponse[string]{
 			Message: "User not deleted",
 		})
 		return
 	}
 
-	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse[model.Users]{
 		Message: "User deleted successfully",
 		Data:    user,
 	})

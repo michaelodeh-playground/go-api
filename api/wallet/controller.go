@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -17,7 +18,7 @@ import (
 // @Accept json
 // @Produce json
 // @Param Request body FundWallet true "Fund Wallet Data"
-// @Success 200 {object} model.Transactions
+// @Success 200 {object} helper.ApiSuccessResponse[model.Transactions]
 // @Router /api/wallets/fund [post]
 func Found(w http.ResponseWriter, r *http.Request) {
 	var body FundWallet
@@ -65,9 +66,35 @@ func Found(w http.ResponseWriter, r *http.Request) {
 	}
 	config.Database.Preload("User").First(&transaction, "id = ?", transaction.ID)
 
-	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse[model.Transactions]{
 		Message: "Wallet funded successfully",
 		Data:    transaction,
+	})
+
+}
+
+// @Summary Get User Wallet Balance
+// @Description Get user wallet balance
+// @Tags wallets
+// @Produce json
+// @Param user path string true "User ID"
+// @Success 200 {object} helper.ApiSuccessResponse[float64]
+// @Router /api/wallets/balance/{user} [get]
+func Balance(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "user")
+	var user model.Users
+	if err := config.Database.First(&user, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			helper.JsonNotFoundResponse(w, "User not found")
+			return
+		}
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
+		return
+	}
+
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse[float64]{
+		Message: "User fetched successfully",
+		Data:    user.Balance,
 	})
 
 }

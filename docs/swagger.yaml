@@ -1,4 +1,82 @@
 definitions:
+  helper.ApiSuccessResponse-array_model_Users:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/model.Users'
+        type: array
+      message:
+        example: Record fetched successfully
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/helper.Status'
+        example: success
+    type: object
+  helper.ApiSuccessResponse-float64:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        type: number
+      message:
+        example: Record fetched successfully
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/helper.Status'
+        example: success
+    type: object
+  helper.ApiSuccessResponse-model_Transactions:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/model.Transactions'
+      message:
+        example: Record fetched successfully
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/helper.Status'
+        example: success
+    type: object
+  helper.ApiSuccessResponse-model_Users:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        $ref: '#/definitions/model.Users'
+      message:
+        example: Record fetched successfully
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/helper.Status'
+        example: success
+    type: object
+  helper.Status:
+    enum:
+    - success
+    - error
+    - failed
+    - not_found
+    - bad_request
+    - internal_server_error
+    type: string
+    x-enum-varnames:
+    - StatusSuccess
+    - StatusError
+    - StatusFailed
+    - StatusNotFound
+    - StatusBadRequest
+    - StatusInternalServerError
   model.Transactions:
     properties:
       amount:
@@ -82,9 +160,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.Users'
-            type: array
+            $ref: '#/definitions/helper.ApiSuccessResponse-array_model_Users'
       summary: Get all users
       tags:
       - users
@@ -105,7 +181,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Users'
+            $ref: '#/definitions/helper.ApiSuccessResponse-model_Users'
       summary: Create user
       tags:
       - users
@@ -124,7 +200,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Users'
+            $ref: '#/definitions/helper.ApiSuccessResponse-model_Users'
       summary: Delete user
       tags:
       - users
@@ -142,7 +218,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Users'
+            $ref: '#/definitions/helper.ApiSuccessResponse-model_Users'
       summary: Show user
       tags:
       - users
@@ -168,10 +244,29 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Users'
+            $ref: '#/definitions/helper.ApiSuccessResponse-model_Users'
       summary: Update user
       tags:
       - users
+  /api/wallets/balance/{user}:
+    get:
+      description: Get user wallet balance
+      parameters:
+      - description: User ID
+        in: path
+        name: user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/helper.ApiSuccessResponse-float64'
+      summary: Get User Wallet Balance
+      tags:
+      - wallets
   /api/wallets/fund:
     post:
       consumes:
@@ -190,7 +285,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Transactions'
+            $ref: '#/definitions/helper.ApiSuccessResponse-model_Transactions'
       summary: Fund User Wallet
       tags:
       - wallets

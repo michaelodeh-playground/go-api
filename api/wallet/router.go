@@ -6,4 +6,5 @@ var Routes = chi.NewRouter()
 
 func init() {
 	Routes.Post("/fund", Found)
+	Routes.Get("/balance/{user}", Balance)
 }

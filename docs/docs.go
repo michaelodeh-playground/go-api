@@ -29,10 +29,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.Users"
-                            }
+                            "$ref": "#/definitions/helper.ApiSuccessResponse-array_model_Users"
                         }
                     }
                 }
@@ -64,7 +61,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Users"
+                            "$ref": "#/definitions/helper.ApiSuccessResponse-model_Users"
                         }
                     }
                 }
@@ -93,7 +90,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Users"
+                            "$ref": "#/definitions/helper.ApiSuccessResponse-model_Users"
                         }
                     }
                 }
@@ -132,7 +129,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Users"
+                            "$ref": "#/definitions/helper.ApiSuccessResponse-model_Users"
                         }
                     }
                 }
@@ -159,7 +156,36 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Users"
+                            "$ref": "#/definitions/helper.ApiSuccessResponse-model_Users"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/wallets/balance/{user}": {
+            "get": {
+                "description": "Get user wallet balance",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Get User Wallet Balance",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/helper.ApiSuccessResponse-float64"
                         }
                     }
                 }
@@ -193,7 +219,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Transactions"
+                            "$ref": "#/definitions/helper.ApiSuccessResponse-model_Transactions"
                         }
                     }
                 }
@@ -201,6 +227,124 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "helper.ApiSuccessResponse-array_model_Users": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Users"
+                    }
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Record fetched successfully"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/helper.Status"
+                        }
+                    ],
+                    "example": "success"
+                }
+            }
+        },
+        "helper.ApiSuccessResponse-float64": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "number"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Record fetched successfully"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/helper.Status"
+                        }
+                    ],
+                    "example": "success"
+                }
+            }
+        },
+        "helper.ApiSuccessResponse-model_Transactions": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "$ref": "#/definitions/model.Transactions"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Record fetched successfully"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/helper.Status"
+                        }
+                    ],
+                    "example": "success"
+                }
+            }
+        },
+        "helper.ApiSuccessResponse-model_Users": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "$ref": "#/definitions/model.Users"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Record fetched successfully"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/helper.Status"
+                        }
+                    ],
+                    "example": "success"
+                }
+            }
+        },
+        "helper.Status": {
+            "type": "string",
+            "enum": [
+                "success",
+                "error",
+                "failed",
+                "not_found",
+                "bad_request",
+                "internal_server_error"
+            ],
+            "x-enum-varnames": [
+                "StatusSuccess",
+                "StatusError",
+                "StatusFailed",
+                "StatusNotFound",
+                "StatusBadRequest",
+                "StatusInternalServerError"
+            ]
+        },
         "model.Transactions": {
             "type": "object",
             "properties": {
