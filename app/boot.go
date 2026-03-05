@@ -9,4 +9,5 @@ func Boot() {
 	config.Load()
 	config.ConnectDatabase()
 	config.Database.AutoMigrate(&model.Users{})
+	config.Database.AutoMigrate(&model.Transactions{})
 }

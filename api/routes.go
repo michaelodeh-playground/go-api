@@ -2,6 +2,7 @@ package api
 
 import (
 	"api/api/user"
+	"api/api/wallet"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -9,5 +10,6 @@ import (
 var ApiRoute = chi.NewRouter()
 
 func init() {
-	ApiRoute.Mount("/users", user.UserRoute)
+	ApiRoute.Mount("/users", user.Routes)
+	ApiRoute.Mount("/wallets", wallet.Routes)
 }

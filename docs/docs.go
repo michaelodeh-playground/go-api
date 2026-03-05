@@ -164,14 +164,80 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/wallets/fund": {
+            "post": {
+                "description": "Fund user Wallet",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "wallets"
+                ],
+                "summary": "Fund User Wallet",
+                "parameters": [
+                    {
+                        "description": "Fund Wallet Data",
+                        "name": "Request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/wallet.FundWallet"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Transactions"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "model.Transactions": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "reference_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/model.Users"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Users": {
             "type": "object",
             "properties": {
                 "age": {
                     "type": "integer"
+                },
+                "balance": {
+                    "type": "number"
                 },
                 "created_at": {
                     "type": "string"
@@ -224,6 +290,17 @@ const docTemplate = `{
                     "type": "string",
                     "default": "John Updated",
                     "example": "John Updated"
+                }
+            }
+        },
+        "wallet.FundWallet": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         }

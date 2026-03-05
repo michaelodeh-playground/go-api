@@ -1,8 +1,29 @@
 definitions:
+  model.Transactions:
+    properties:
+      amount:
+        type: number
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      reference_id:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.Users'
+      user_id:
+        type: string
+    type: object
   model.Users:
     properties:
       age:
         type: integer
+      balance:
+        type: number
       created_at:
         type: string
       email:
@@ -40,6 +61,13 @@ definitions:
       name:
         default: John Updated
         example: John Updated
+        type: string
+    type: object
+  wallet.FundWallet:
+    properties:
+      amount:
+        type: number
+      user_id:
         type: string
     type: object
 info:
@@ -144,4 +172,26 @@ paths:
       summary: Update user
       tags:
       - users
+  /api/wallets/fund:
+    post:
+      consumes:
+      - application/json
+      description: Fund user Wallet
+      parameters:
+      - description: Fund Wallet Data
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/wallet.FundWallet'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Transactions'
+      summary: Fund User Wallet
+      tags:
+      - wallets
 swagger: "2.0"

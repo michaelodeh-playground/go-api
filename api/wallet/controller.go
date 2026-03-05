@@ -1,0 +1,73 @@
+package wallet
+
+import (
+	"api/config"
+	"api/helper"
+	"api/model"
+	"encoding/json"
+	"net/http"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
+// @Summary Fund User Wallet
+// @Description Fund user Wallet
+// @Tags wallets
+// @Accept json
+// @Produce json
+// @Param Request body FundWallet true "Fund Wallet Data"
+// @Success 200 {object} model.Transactions
+// @Router /api/wallets/fund [post]
+func Found(w http.ResponseWriter, r *http.Request) {
+	var body FundWallet
+	var user model.Users
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		helper.JsonBadRequestResponse(w, "Invalid JSON")
+		return
+	}
+
+	if err := config.Database.First(&user, "id = ?", body.UserID).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			helper.JsonNotFoundResponse(w, "User not found")
+			return
+		}
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
+		return
+	}
+
+	transaction := model.Transactions{
+		Amount:      body.Amount,
+		UserID:      user.ID,
+		ReferenceID: uuid.New().String(),
+	}
+	err := config.Database.Transaction(func(trx *gorm.DB) error {
+		if err := trx.Create(&transaction).Error; err != nil {
+			return err
+		}
+
+		if err := trx.Model(&user).
+			Where("id = ?", user.ID).
+			Update("balance", gorm.Expr("balance + ?", body.Amount)).
+			Error; err != nil {
+			return err
+		}
+
+		// var u model.User
+		// trx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&u, user.ID)
+
+		return nil
+	})
+
+	if err != nil {
+		helper.JsonInternalServerErrorResponse(w, "Transaction failed")
+		return
+	}
+	config.Database.Preload("User").First(&transaction, "id = ?", transaction.ID)
+
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+		Message: "Wallet funded successfully",
+		Data:    transaction,
+	})
+
+}
