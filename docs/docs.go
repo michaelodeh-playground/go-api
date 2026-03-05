@@ -71,6 +71,33 @@ const docTemplate = `{
             }
         },
         "/api/users/{user}": {
+            "get": {
+                "description": "Show a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Show user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Users"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update a user",
                 "consumes": [
@@ -87,7 +114,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "User ID",
-                        "name": "id",
+                        "name": "user",
                         "in": "path",
                         "required": true
                     },
@@ -99,6 +126,33 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/user.UpdateUserRequest"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Users"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {

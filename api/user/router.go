@@ -7,8 +7,9 @@ import (
 var UserRoute = chi.NewRouter()
 
 func init() {
-
-	UserRoute.Post("/", CreateUser)
-	UserRoute.Get("/", IndexUser)
-	UserRoute.Put("/{user}", UpdateUser)
+	UserRoute.Get("/", Index)
+	UserRoute.Get("/{user}", Show)
+	UserRoute.Post("/", Create)
+	UserRoute.Put("/{user}", Update)
+	UserRoute.Delete("/{user}", Delete)
 }

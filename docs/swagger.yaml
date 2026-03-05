@@ -82,6 +82,42 @@ paths:
       tags:
       - users
   /api/users/{user}:
+    delete:
+      description: Delete a user
+      parameters:
+      - description: User ID
+        in: path
+        name: user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Users'
+      summary: Delete user
+      tags:
+      - users
+    get:
+      description: Show a user
+      parameters:
+      - description: User ID
+        in: path
+        name: user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Users'
+      summary: Show user
+      tags:
+      - users
     put:
       consumes:
       - application/json
@@ -89,7 +125,7 @@ paths:
       parameters:
       - description: User ID
         in: path
-        name: id
+        name: user
         required: true
         type: string
       - description: Users Data

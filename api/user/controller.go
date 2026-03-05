@@ -1,7 +1,6 @@
 package user
 
 import (
-	httpStatusText "api/common"
 	"api/config"
 	"api/helper"
 	"api/model"
@@ -10,7 +9,52 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"gorm.io/gorm"
 )
+
+// @Summary Get all users
+// @Description Get all users
+// @Tags users
+// @Produce json
+// @Success 200 {object} []model.Users
+// @Router /api/users [get]
+func Index(w http.ResponseWriter, r *http.Request) {
+	var users []model.Users
+	result := config.Database.Find(&users)
+	if result.Error != nil {
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
+		return
+	}
+
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+		Message: "User fetched successfully",
+		Data:    users,
+	})
+}
+
+// @Summary Show user
+// @Description Show a user
+// @Tags users
+// @Produce json
+// @Param user path string true "User ID"
+// @Success 200 {object} model.Users
+// @Router /api/users/{user} [get]
+func Show(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "user")
+	var user model.Users
+	if err := config.Database.First(&user, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			helper.JsonNotFoundResponse(w, "User not found")
+			return
+		}
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
+		return
+	}
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+		Message: "User fetched successfully",
+		Data:    user,
+	})
+}
 
 // @Summary Create user
 // @Description Create a new user
@@ -20,24 +64,20 @@ import (
 // @Param user body CreateUserRequest true "Users Data"
 // @Success 200 {object} model.Users
 // @Router /api/users [post]
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func Create(w http.ResponseWriter, r *http.Request) {
 	var body CreateUserRequest
 
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		helper.JsonResponse(w, &helper.ApiResponse{
-			Code:    http.StatusBadRequest,
-			Status:  helper.StatusError,
-			Message: "Invalid JSON",
-		})
+		helper.JsonBadRequestResponse(w, "Invalid JSON")
 		return
 	}
 	if body.Name == "" {
-		helper.JsonResponse(w, &helper.ApiResponse{
-			Code:    http.StatusBadRequest,
-			Status:  helper.StatusError,
-			Message: "name is required",
-		})
+		helper.JsonBadRequestResponse(w, "name is required")
+		return
+	}
+	if body.Email == "" {
+		helper.JsonBadRequestResponse(w, "email is required")
 		return
 	}
 
@@ -45,60 +85,22 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Name:  body.Name,
 		Email: body.Email,
 	}
-	checkUser := config.Database.Find(&user, "email = ?", body.Email)
-
-	if checkUser.RowsAffected > 0 {
-		helper.JsonResponse(w, &helper.ApiResponse{
-			Code:    http.StatusBadRequest,
-			Status:  helper.StatusError,
-			Message: "User already exists",
-			Data:    user,
-		})
+	var existing model.Users
+	if err := config.Database.Where("email = ?", body.Email).First(&existing).Error; err == nil {
+		helper.JsonBadRequestResponse(w, "User already exists")
 		return
 	}
-
 	result := config.Database.Create(&user)
 	if result.Error != nil {
 		fmt.Println(result.Error)
-		helper.JsonResponse(w, &helper.ApiResponse{
-			Code:    http.StatusInternalServerError,
-			Status:  helper.StatusError,
-			Message: "Internal Server Error",
-		})
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
 		return
 	}
 
-	response := &helper.ApiResponse{
-		Code:    http.StatusOK,
-		Status:  httpStatusText.SUCCESS,
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
 		Message: "User created successfully",
 		Data:    user,
-	}
-	helper.JsonResponse(w, response)
-}
-
-// @Summary Get all users
-// @Description Get all users
-// @Tags users
-// @Produce json
-// @Success 200 {object} []model.Users
-// @Router /api/users [get]
-func IndexUser(w http.ResponseWriter, r *http.Request) {
-	var users []model.Users
-	result := config.Database.Find(&users)
-	if result.Error != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	response := &helper.ApiResponse{
-		Code:    http.StatusOK,
-		Status:  httpStatusText.SUCCESS,
-		Message: "User fetched successfully",
-		Data:    users,
-	}
-	helper.JsonResponse(w, response)
+	})
 }
 
 // @Summary Update user
@@ -106,40 +108,70 @@ func IndexUser(w http.ResponseWriter, r *http.Request) {
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path string true "User ID"
+// @Param user path string true "User ID"
 // @Param user body UpdateUserRequest true "Users Data"
 // @Success 200 {object} model.Users
 // @Router /api/users/{user} [put]
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+func Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "user")
 	var body UpdateUserRequest
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		helper.JsonBadRequestResponse(w, "Invalid JSON")
 		return
 	}
-	user := config.Database.Where("id = ?", id)
-	if user.RowsAffected == 0 {
-		response := &helper.ApiResponse{
-			Code:    http.StatusNotFound,
-			Status:  httpStatusText.FAILED,
-			Message: "User not found",
-			Data:    nil,
+	var user model.Users
+	if err := config.Database.First(&user, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			helper.JsonNotFoundResponse(w, "User not found")
+			return
 		}
-		helper.JsonResponse(w, response)
-		return
-	}
-	result := user.Updates(&body)
-	if result.Error != nil {
-		http.Error(w, result.Error.Error(), http.StatusInternalServerError)
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
 		return
 	}
 
-	response := &helper.ApiResponse{
-		Code:    http.StatusOK,
-		Status:  httpStatusText.SUCCESS,
+	if err := config.Database.Model(&user).Updates(body).Error; err != nil {
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
+		return
+	}
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
 		Message: "User updated successfully",
 		Data:    user,
+	})
+
+}
+
+// @Summary Delete user
+// @Description Delete a user
+// @Tags users
+// @Produce json
+// @Param user path string true "User ID"
+// @Success 200 {object} model.Users
+// @Router /api/users/{user} [delete]
+func Delete(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "user")
+	var user model.Users
+	if err := config.Database.First(&user, "id = ?", id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			helper.JsonNotFoundResponse(w, "User not found")
+			return
+		}
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
+		return
 	}
-	helper.JsonResponse(w, response)
+	result := config.Database.Delete(&user)
+	if result.Error != nil {
+		helper.JsonInternalServerErrorResponse(w, "Internal Server Error")
+		return
+	}
+	if result.RowsAffected == 0 {
+		helper.JsonErrorResponse(w, &helper.ApiResponse{
+			Message: "User not deleted",
+		})
+		return
+	}
+
+	helper.JsonSuccessResponse(w, &helper.ApiSuccessResponse{
+		Message: "User deleted successfully",
+		Data:    user,
+	})
 }
